@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notely — Notes, Chat & Calls</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root{--bg:#07101b;--panel:#0d1928;--panel2:#111f31;--text:#eef6ff;--muted:#91a4ba;--line:#20344d;--blue:#2f8cff;--blue2:#1267d9;--danger:#ef5350;--good:#39c98a;--shadow:0 18px 60px #0005}
+[data-theme=light]{--bg:#f3f7fc;--panel:#fff;--panel2:#eef4fb;--text:#102033;--muted:#62758a;--line:#dbe5f0;--blue:#1769e0;--blue2:#0d55bd;--shadow:0 18px 50px #18365318}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 70% -10%,#123967 0,#07101b 40%);color:var(--text);font:15px Inter,system-ui,Segoe UI,sans-serif;min-height:100vh}body[data-theme=light]{background:linear-gradient(135deg,#eef5ff,#f9fbfe)}
+button,input,textarea{font:inherit}button{border:0;cursor:pointer}.app{display:flex;min-height:100vh}.sidebar{width:250px;background:#06101bd9;border-right:1px solid var(--line);padding:22px 14px;position:fixed;inset:0 auto 0 0;z-index:10}.brand{display:flex;align-items:center;gap:11px;padding:8px 10px 24px;font-size:22px;font-weight:800}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#54b3ff);display:grid;place-items:center;color:white}.nav{display:grid;gap:6px}.nav button{background:transparent;color:var(--muted);text-align:left;padding:12px 14px;border-radius:12px}.nav button:hover,.nav button.active{background:#173253;color:white}.main{margin-left:250px;width:calc(100% - 250px);padding:28px;max-width:1500px}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:26px}.title h1{margin:0;font-size:30px}.muted{color:var(--muted)}.actions{display:flex;gap:9px;align-items:center}.search,input,textarea{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:11px;padding:11px 13px;outline:none}.search input{width:220px}.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:11px 16px;border-radius:11px;font-weight:700}.secondary{background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:11px}.danger{background:#4a1d22;color:#ffb6b6;padding:10px 14px;border-radius:11px}.icon{background:var(--panel);border:1px solid var(--line);color:var(--text);width:42px;height:42px;border-radius:11px}.page{display:none}.page.active{display:block}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:linear-gradient(145deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}.stat{font-size:30px;font-weight:800;margin-top:10px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.section-head h2{margin:0}.list{display:grid;gap:10px}.person,.note,.request,.chat-item{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px;display:flex;align-items:center;justify-content:space-between;gap:12px}.person-main,.note-main{display:flex;align-items:center;gap:12px;min-width:0}.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#174c88,#2f8cff);display:grid;place-items:center;color:#fff;font-weight:800;flex:none}.person-name{font-weight:700}.person-sub{color:var(--muted);font-size:13px}.tabs{display:flex;gap:7px;margin-bottom:15px}.tabs button{background:var(--panel);color:var(--muted);border:1px solid var(--line);padding:9px 13px;border-radius:10px}.tabs button.active{background:#173253;color:white}.note{display:block}.note h3{margin:0 0 7px}.note p{white-space:pre-wrap;color:var(--muted);line-height:1.5;max-height:100px;overflow:hidden}.note-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}.chat-layout{display:grid;grid-template-columns:300px 1fr;gap:15px;height:calc(100vh - 145px);min-height:560px}.friends{overflow:auto}.chat{background:var(--panel);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;overflow:hidden}.chat-head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.messages{flex:1;padding:20px;overflow:auto;display:flex;flex-direction:column;gap:8px}.bubble{max-width:70%;padding:10px 13px;border-radius:16px;background:var(--panel2);line-height:1.45}.bubble.mine{align-self:flex-end;background:var(--blue);color:#fff}.composer{display:flex;gap:8px;padding:13px;border-top:1px solid var(--line)}.composer input{flex:1}.callbar{display:flex;gap:7px}.call-panel{position:fixed;right:24px;bottom:24px;width:min(760px,calc(100vw - 48px));background:#06101b;border:1px solid #2d4b69;border-radius:20px;padding:14px;z-index:30;box-shadow:0 30px 100px #000b}.videos{display:grid;grid-template-columns:1fr 1fr;gap:10px}.videos video{width:100%;aspect-ratio:16/10;background:#000;border-radius:14px;object-fit:cover}.hidden{display:none!important}.modal-bg{position:fixed;inset:0;background:#0009;display:none;place-items:center;z-index:50;padding:20px}.modal-bg.open{display:grid}.modal{width:min(540px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}.form{display:grid;gap:10px}.form label{font-size:13px;color:var(--muted)}.form input,.form textarea{width:100%}.form textarea{min-height:190px;resize:vertical}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#122237;color:#fff;border:1px solid #2b4968;padding:12px 16px;border-radius:12px;z-index:80;display:none}.toast.show{display:block}.empty{padding:35px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:15px}.badge{display:inline-flex;padding:3px 8px;border-radius:999px;background:#173253;color:#9dceff;font-size:12px}.mobile-nav{display:none}
+@media(max-width:900px){.sidebar{display:none}.main{margin:0;width:100%;padding:18px 14px 82px}.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#07101bf5;border-top:1px solid var(--line);z-index:20;justify-content:space-around;padding:7px}.mobile-nav button{background:none;color:var(--muted);padding:8px}.cards{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.chat-layout{grid-template-columns:1fr;height:auto}.friends{max-height:250px}.chat{height:600px}.search{display:none}}
+@media(max-width:550px){.cards{grid-template-columns:1fr}.top{align-items:flex-start}.actions .primary{font-size:0}.actions .primary:first-letter{font-size:18px}.videos{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">N</div> Notely</div>
+  <nav class="nav">
+    <button class="active" data-page="overview">⌂ Overview</button>
+    <button data-page="notes">▣ My Notes</button>
+    <button data-page="messages">◉ Messages</button>
+    <button data-page="requests">＋ Add / Requests</button>
+    <button data-page="calls">☎ Calls</button>
+    <button data-page="blocked">⊘ Blocked</button>
+    <button data-page="settings">⚙ Settings</button>
+  </nav>
+</aside>
+<main class="main">
+  <div class="top">
+    <div class="title"><h1 id="pageTitle">Welcome to Notely</h1><div class="muted" id="pageSub">Your notes, friends and conversations in one place.</div></div>
+    <div class="actions"><div class="search"><input id="globalSearch" placeholder="Find a person..."></div><button class="primary" id="addBtn">＋ Add person</button><button class="icon" id="themeBtn">☼</button></div>
+  </div>
+
+  <section class="page active" id="overview">
+    <div class="cards">
+      <div class="card"><div class="muted">My notes</div><div class="stat" id="statNotes">0</div></div>
+      <div class="card"><div class="muted">Friends</div><div class="stat" id="statFriends">0</div></div>
+      <div class="card"><div class="muted">Requests</div><div class="stat" id="statRequests">0</div></div>
+      <div class="card"><div class="muted">Shared notes</div><div class="stat" id="statShared">0</div></div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="section-head"><h2>Quick actions</h2></div><div class="list">
+        <button class="secondary" data-go="notes">Create a note</button>
+        <button class="secondary" data-go="requests">Add a friend</button>
+        <button class="secondary" data-go="messages">Open messages</button>
+      </div></div>
+      <div class="card"><div class="section-head"><h2>How it works</h2></div><p class="muted">Find a person → send a request → they accept → chat, share notes, and call. Blocking immediately stops communication.</p></div>
+    </div>
+  </section>
+
+  <section class="page" id="notes">
+    <div class="tabs"><button class="active" data-note-mode="active">All notes</button><button data-note-mode="shared">Shared with me</button><button data-note-mode="trash">Trash</button><button class="primary" id="newNote">＋ New note</button></div>
+    <div id="notesList" class="list"></div>
+  </section>
+
+  <section class="page" id="messages">
+    <div class="chat-layout">
+      <div class="card friends"><div class="section-head"><h2>Friends</h2></div><div id="friendsList" class="list"></div></div>
+      <div class="chat">
+        <div class="chat-head"><div><strong id="chatName">Select a friend</strong><div class="muted" id="typing"></div></div><div class="callbar"><button class="secondary" id="voiceCall" disabled>☎ Voice</button><button class="secondary" id="videoCall" disabled>▣ Video</button><button class="danger" id="blockBtn" disabled>Block</button></div></div>
+        <div class="messages" id="messagesList"><div class="empty">Choose a friend to start chatting.</div></div>
+        <div class="composer"><input id="messageInput" placeholder="Write a message..." disabled><button class="primary" id="sendBtn" disabled>Send</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="requests">
+    <div class="grid">
+      <div class="card"><div class="section-head"><h2>Add a person</h2></div><p class="muted">Search their username or display name. They must accept your request before chat is unlocked.</p><div style="display:flex;gap:8px"><input id="userSearch" placeholder="e.g. alex_123" style="flex:1"><button class="primary" id="searchUsersBtn">Search</button></div><div id="userResults" class="list" style="margin-top:14px"></div></div>
+      <div class="card"><div class="section-head"><h2>Incoming requests</h2></div><div id="incoming" class="list"></div><hr style="border-color:var(--line);margin:20px 0"><div class="section-head"><h2>Sent requests</h2></div><div id="outgoing" class="list"></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="calls">
+    <div class="card"><div class="section-head"><h2>Calls</h2></div><p class="muted">Voice and video calls work between accepted, unblocked connections. Your browser will ask for microphone/camera permission when needed.</p><div id="callFriends" class="list"></div></div>
+  </section>
+
+  <section class="page" id="blocked">
+    <div class="card"><div class="section-head"><h2>Blocked people</h2></div><div id="blockedList" class="list"></div></div>
+  </section>
+
+  <section class="page" id="settings">
+    <div class="card"><h2>Settings</h2><p class="muted">Choose your appearance.</p><div style="display:flex;gap:10px"><button class="secondary" id="darkMode">Dark mode</button><button class="secondary" id="lightMode">Light mode</button></div><hr style="border-color:var(--line);margin:22px 0"><button class="danger" id="logout">Sign out</button></div>
+  </section>
+</main>
+</div>
+<div class="mobile-nav">
+  <button data-page="overview">⌂</button><button data-page="notes">▣</button><button data-page="messages">◉</button><button data-page="requests">＋</button><button data-page="settings">⚙</button>
+</div>
+
+<div class="modal-bg" id="authModal"><div class="modal">
+  <div class="brand" style="padding:0 0 18px"><div class="logo">N</div> Notely</div>
+  <div class="tabs"><button class="active" id="loginTab">Sign in</button><button id="registerTab">Create account</button></div>
+  <form class="form" id="authForm"><label id="loginLabel">Username or email</label><input id="login" required><label id="nameLabel" class="hidden">Display name</label><input id="displayName" class="hidden"><label>Email</label><input id="email" type="email" required><label>Password</label><input id="password" type="password" minlength="8" required><button class="primary" id="authSubmit">Sign in</button></form>
+</div></div>
+
+<div class="modal-bg" id="noteModal"><div class="modal"><div class="section-head"><h2 id="noteModalTitle">New note</h2><button class="icon" onclick="closeModal('noteModal')">×</button></div><form class="form" id="noteForm"><input type="hidden" id="noteId"><label>Title</label><input id="noteTitle" required maxlength="120"><label>Note</label><textarea id="noteBody" maxlength="20000"></textarea><label><input type="checkbox" id="noteFavorite"> Favorite</label><button class="primary">Save note</button></form></div></div>
+
+<div class="modal-bg" id="shareModal"><div class="modal"><div class="section-head"><h2>Share note</h2><button class="icon" onclick="closeModal('shareModal')">×</button></div><p class="muted">Choose an accepted friend.</p><div id="shareFriends" class="list"></div></div></div>
+
+<div class="call-panel hidden" id="callPanel">
+  <div class="section-head"><strong id="callTitle">Call</strong><button class="danger" id="hangup">End call</button></div>
+  <div class="videos"><video id="localVideo" autoplay muted playsinline></video><video id="remoteVideo" autoplay playsinline></video></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let token=localStorage.getItem("notely_token"), me=null, friends=[], currentFriend=null, socket=null, noteMode="active", pendingShare=null;
+let pc=null, localStream=null, callPeer=null, callKind=null, pendingOffer=null, pendingIce=[];
+
+async function api(url,opts={}) {
+  const headers={"Content-Type":"application/json",...(opts.headers||{})};
+  if(token) headers.Authorization=`Bearer ${token}`;
+  const r=await fetch(url,{...opts,headers});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||"Something went wrong.");
+  return d;
+}
+function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2600)}
+function avatar(name){return (name||"?").trim().slice(0,1).toUpperCase()}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function closeModal(id){$(id).classList.remove("open")}
+function openModal(id){$(id).classList.add("open")}
+function showPage(page){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  $(page).classList.add("active");
+  document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+  const titles={overview:["Welcome to Notely","Your notes, friends and conversations in one place."],notes:["My Notes","Write, organize and share your ideas."],messages:["Messages","Chat with people after they accept your request."],requests:["Add / Requests","Find people and manage connection requests."],calls:["Calls","Voice and video calls with friends."],blocked:["Blocked","Manage people you have blocked."],settings:["Settings","Control your Notely experience."]};
+  $("pageTitle").textContent=titles[page][0];$("pageSub").textContent=titles[page][1];
+  if(page==="notes") loadNotes(); if(page==="messages") loadFriends(); if(page==="requests") loadRequests(); if(page==="calls") renderCallFriends(); if(page==="blocked") loadBlocked(); if(page==="overview") refreshStats();
+}
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>showPage(b.dataset.go));
+$("addBtn").onclick=()=>{showPage("requests");setTimeout(()=>$("userSearch").focus(),50)}
+$("themeBtn").onclick=()=>setTheme(document.body.dataset.theme==="light"?"dark":"light");
+$("darkMode").onclick=()=>setTheme("dark"); $("lightMode").onclick=()=>setTheme("light");
+function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("notely_theme",t)}
+setTheme(localStorage.getItem("notely_theme")||"dark");
+
+let register=false;
+function authMode(r){
+  register=r;$("loginTab").classList.toggle("active",!r);$("registerTab").classList.toggle("active",r);
+  $("loginLabel").textContent=r?"Username":"Username or email";$("nameLabel").classList.toggle("hidden",!r);$("displayName").classList.toggle("hidden",!r);
+  $("email").required=r;$("authSubmit").textContent=r?"Create account":"Sign in";
+}
+$("loginTab").onclick=()=>authMode(false);$("registerTab").onclick=()=>authMode(true);
+$("authForm").onsubmit=async e=>{e.preventDefault();try{
+  const d=register?await api("/api/auth/register",{method:"POST",body:JSON.stringify({username:$("login").value,displayName:$("displayName").value,email:$("email").value,password:$("password").value})})
+  :await api("/api/auth/login",{method:"POST",body:JSON.stringify({login:$("login").value,password:$("password").value})});
+  token=d.token;me=d.user;localStorage.setItem("notely_token",token);closeModal("authModal");connectSocket();boot();
+}catch(e){toast(e.message)}};
+$("logout").onclick=()=>{localStorage.removeItem("notely_token");location.reload()};
+
+async function boot(){await refreshStats();await loadFriends();await loadRequests();connectSocket()}
+async function refreshStats(){
+  try{
+    const [n,s,f,r]=await Promise.all([api("/api/notes?mode=active"),api("/api/notes?mode=shared"),api("/api/friends"),api("/api/requests")]);
+    $("statNotes").textContent=n.notes.length;$("statShared").textContent=s.notes.length;$("statFriends").textContent=f.friends.length;$("statRequests").textContent=r.incoming.length;
+  }catch{}
+}
+async function loadFriends(){
+  const d=await api("/api/friends");friends=d.friends;renderFriends();renderCallFriends();
+}
+function personHtml(u,actions=""){return `<div class="person"><div class="person-main"><div class="avatar">${avatar(u.display_name)}</div><div><div class="person-name">${escapeHtml(u.display_name)}</div><div class="person-sub">@${escapeHtml(u.username)}</div></div></div><div>${actions}</div></div>`}
+function renderFriends(){
+  $("friendsList").innerHTML=friends.length?friends.map(f=>personHtml(f,`<button class="secondary" onclick="selectFriend(${f.id})">Open</button>`)).join(""):`<div class="empty">No friends yet. Use Add person to find someone.</div>`;
+}
+async function selectFriend(id){
+  currentFriend=friends.find(f=>f.id===id);if(!currentFriend)return;
+  showPage("messages");$("chatName").textContent=currentFriend.display_name;$("messageInput").disabled=false;$("sendBtn").disabled=false;$("voiceCall").disabled=false;$("videoCall").disabled=false;$("blockBtn").disabled=false;
+  const d=await api(`/api/messages/${id}`);renderMessages(d.messages);
+}
+function renderMessages(ms){$("messagesList").innerHTML=ms.length?ms.map(m=>`<div class="bubble ${m.sender_id===me.id?"mine":""}">${escapeHtml(m.body)}</div>`).join(""):`<div class="empty">No messages yet. Say hello.</div>`;$("messagesList").scrollTop=$("messagesList").scrollHeight}
+async function sendMessage(){if(!currentFriend)return;const body=$("messageInput").value.trim();if(!body)return;try{const d=await api("/api/messages",{method:"POST",body:JSON.stringify({receiverId:currentFriend.id,body})});$("messageInput").value="";const old=await api(`/api/messages/${currentFriend.id}`);renderMessages(old.messages)}catch(e){toast(e.message)}}
+$("sendBtn").onclick=sendMessage;$("messageInput").onkeydown=e=>{if(e.key==="Enter")sendMessage()};
+let typingTimer; $("messageInput").oninput=()=>{if(socket&&currentFriend){socket.emit("typing",{to:currentFriend.id,isTyping:true});clearTimeout(typingTimer);typingTimer=setTimeout(()=>socket.emit("typing",{to:currentFriend.id,isTyping:false}),700)}};
+$("blockBtn").onclick=async()=>{if(!currentFriend||!confirm(`Block ${currentFriend.display_name}?`))return;try{await api(`/api/blocks/${currentFriend.id}`,{method:"POST"});toast("Person blocked.");currentFriend=null;await loadFriends();showPage("blocked")}catch(e){toast(e.message)}};
+
+async function loadRequests(){
+  const d=await api("/api/requests");
+  $("incoming").innerHTML=d.incoming.length?d.incoming.map(r=>personHtml({display_name:r.display_name,username:r.username},`<button class="primary" onclick="acceptRequest(${r.id})">Accept</button> <button class="secondary" onclick="declineRequest(${r.id})">Decline</button>`)).join(""):`<div class="empty">No incoming requests.</div>`;
+  $("outgoing").innerHTML=d.outgoing.length?d.outgoing.map(r=>personHtml({display_name:r.display_name,username:r.username},`<span class="badge">Pending</span>`)).join(""):`<div class="empty">No sent requests.</div>`;
+  refreshStats();
+}
+async function acceptRequest(id){try{await api(`/api/requests/${id}/accept`,{method:"POST"});toast("Request accepted.");await loadRequests();await loadFriends()}catch(e){toast(e.message)}}
+async function declineRequest(id){try{await api(`/api/requests/${id}/decline`,{method:"POST"});await loadRequests()}catch(e){toast(e.message)}}
+async function searchUsers(){
+  const q=$("userSearch").value.trim();if(!q){$("userResults").innerHTML="";return}
+  try{const d=await api(`/api/users?search=${encodeURIComponent(q)}`);
+    $("userResults").innerHTML=d.users.length?d.users.map(u=>{
+      let action=u.blocked?`<span class="badge">Blocked</span>`:u.friends?`<span class="badge">Connected</span>`:u.pendingSent?`<span class="badge">Request sent</span>`:u.pendingReceived?`<span class="badge">They requested you</span>`:`<button class="primary" onclick="sendRequest(${u.id})">Request</button>`;
+      return personHtml(u,action)
+    }).join(""):`<div class="empty">No people found.</div>`;
+  }catch(e){toast(e.message)}
+}
+$("searchUsersBtn").onclick=searchUsers;$("userSearch").onkeydown=e=>{if(e.key==="Enter")searchUsers()};
+$("globalSearch").onkeydown=e=>{if(e.key==="Enter"&&e.target.value.trim()){showPage("requests");$("userSearch").value=e.target.value;searchUsers()}};
+async function sendRequest(id){try{await api("/api/requests",{method:"POST",body:JSON.stringify({receiverId:id})});toast("Request sent.");searchUsers();loadRequests()}catch(e){toast(e.message)}}
+
+async function loadNotes(){
+  const d=await api(`/api/notes?mode=${noteMode}`);
+  $("notesList").innerHTML=d.notes.length?d.notes.map(n=>{
+    const owner=n.sender_name?`<div class="person-sub">Shared by ${escapeHtml(n.sender_name)} (@${escapeHtml(n.sender_username)})</div>`:"";
+    const buttons=noteMode==="trash"?`<button class="secondary" onclick="restoreNote(${n.id})">Restore</button>`:`<button class="secondary" onclick='editNote(${JSON.stringify(n).replace(/'/g,"&#39;")})'>Edit</button><button class="secondary" onclick="shareNote(${n.id})">Share</button><button class="danger" onclick="deleteNote(${n.id})">Trash</button>`;
+    return `<div class="note"><div><h3>${escapeHtml(n.title)} ${n.favorite?"★":""}</h3>${owner}<p>${escapeHtml(n.body)}</p></div><div class="note-actions">${buttons}</div></div>`
+  }).join(""):`<div class="empty">${noteMode==="trash"?"Trash is empty.":"No notes here yet. Create your first note."}</div>`;
+}
+document.querySelectorAll("[data-note-mode]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-note-mode]").forEach(x=>x.classList.remove("active"));b.classList.add("active");noteMode=b.dataset.noteMode;loadNotes()});
+$("newNote").onclick=()=>{ $("noteModalTitle").textContent="New note";$("noteId").value="";$("noteTitle").value="";$("noteBody").value="";$("noteFavorite").checked=false;openModal("noteModal")};
+window.editNote=n=>{$("noteModalTitle").textContent="Edit note";$("noteId").value=n.id;$("noteTitle").value=n.title;$("noteBody").value=n.body;$("noteFavorite").checked=!!n.favorite;openModal("noteModal")};
+$("noteForm").onsubmit=async e=>{e.preventDefault();try{const id=$("noteId").value;const payload={title:$("noteTitle").value,body:$("noteBody").value,favorite:$("noteFavorite").checked};await api(id?`/api/notes/${id}`:"/api/notes",{method:id?"PUT":"POST",body:JSON.stringify(payload)});closeModal("noteModal");loadNotes();refreshStats();toast("Note saved.")}catch(e){toast(e.message)}};
+window.deleteNote=async id=>{if(confirm("Move this note to trash?")){await api(`/api/notes/${id}`,{method:"DELETE"});loadNotes();refreshStats()}};
+window.restoreNote=async id=>{await api(`/api/notes/${id}/restore`,{method:"POST"});loadNotes();refreshStats()};
+window.shareNote=async id=>{pendingShare=id;const d=await api("/api/friends");$("shareFriends").innerHTML=d.friends.length?d.friends.map(f=>personHtml(f,`<button class="primary" onclick="doShare(${f.id})">Share</button>`)).join(""):`<div class="empty">You need an accepted friend first.</div>`;openModal("shareModal")};
+window.doShare=async uid=>{try{await api(`/api/notes/${pendingShare}/share`,{method:"POST",body:JSON.stringify({receiverId:uid})});closeModal("shareModal");toast("Note shared.")}catch(e){toast(e.message)}};
+
+async function renderCallFriends(){if(!$("callFriends"))return;if(!friends.length){$("callFriends").innerHTML=`<div class="empty">Add and accept a friend first.</div>`;return}$("callFriends").innerHTML=friends.map(f=>personHtml(f,`<button class="secondary" onclick="startCall(${f.id},'audio')">☎ Voice</button> <button class="primary" onclick="startCall(${f.id},'video')">▣ Video</button>`)).join("")}
+
+function connectSocket(){
+  if(!token)return;if(socket)socket.disconnect();socket=io({auth:{token}});
+  socket.on("message:new",async msg=>{if(currentFriend&&msg.sender_id===currentFriend.id){const d=await api(`/api/messages/${currentFriend.id}`);renderMessages(d.messages)}});
+  socket.on("chat:request",()=>{toast("You received a new friend request.");loadRequests()});
+  socket.on("chat:accepted",()=>{toast("Your request was accepted.");loadFriends();loadRequests()});
+  socket.on("note:shared",d=>toast(`${d.from?.display_name||"A friend"} shared a note with you.`));
+  socket.on("typing",d=>{if(currentFriend&&d.from===currentFriend.id)$("typing").textContent=d.isTyping?"typing…":""});
+  socket.on("call:offer",async d=>{if(!friends.some(f=>f.id===d.from))return;callPeer=d.from;callKind=d.kind;pendingOffer=d.offer;openIncomingCall()});
+  socket.on("call:answer",async d=>{if(!pc)return;await pc.setRemoteDescription(new RTCSessionDescription(d.answer));flushIce()});
+  socket.on("call:ice",async d=>{if(!pc)return;try{if(pc.remoteDescription)await pc.addIceCandidate(d.candidate);else pendingIce.push(d.candidate)}catch{}});
+  socket.on("call:end",()=>endCall(false));
+  socket.on("call:rejected",()=>{toast("Call declined.");endCall(false)});
+}
+function openIncomingCall(){const f=friends.find(x=>x.id===callPeer);const yes=confirm(`${f?.display_name||"A friend"} is calling you. Accept?`);if(!yes){socket.emit("call:reject",{to:callPeer});return}answerCall()}
+async function setupPeer(kind){
+  const stream=await navigator.mediaDevices.getUserMedia(kind==="video"?{audio:true,video:true}:{audio:true,video:false});
+  localStream=stream;$("localVideo").srcObject=stream;$("localVideo").style.display=kind==="video"?"block":"none";
+  pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+  pc.ontrack=e=>{$("remoteVideo").srcObject=e.streams[0]};
+  pc.onicecandidate=e=>{if(e.candidate&&callPeer)socket.emit("call:ice",{to:callPeer,candidate:e.candidate})};
+  pc.onconnectionstatechange=()=>{if(["failed","disconnected","closed"].includes(pc.connectionState))endCall(false)};
+  $("callPanel").classList.remove("hidden");
+}
+async function startCall(id,kind){try{callPeer=id;callKind=kind;await setupPeer(kind);const offer=await pc.createOffer();await pc.setLocalDescription(offer);socket.emit("call:offer",{to:id,offer:pc.localDescription,kind});const f=friends.find(x=>x.id===id);$("callTitle").textContent=`Calling ${f?.display_name||"friend"}…`}catch(e){toast("Microphone/camera permission is required for calls.") ;endCall(false)}}
+async function answerCall(){try{await setupPeer(callKind);await pc.setRemoteDescription(new RTCSessionDescription(pendingOffer));flushIce();const answer=await pc.createAnswer();await pc.setLocalDescription(answer);socket.emit("call:answer",{to:callPeer,answer:pc.localDescription});const f=friends.find(x=>x.id===callPeer);$("callTitle").textContent=`Call with ${f?.display_name||"friend"}`}catch(e){toast("Could not start the call.");endCall(false)}}
+async function flushIce(){for(const c of pendingIce){try{await pc.addIceCandidate(c)}catch{}}pendingIce=[]}
+window.startCall=startCall;
+$("voiceCall").onclick=()=>currentFriend&&startCall(currentFriend.id,"audio");$("videoCall").onclick=()=>currentFriend&&startCall(currentFriend.id,"video");
+$("hangup").onclick=()=>endCall(true);
+function endCall(send=true){if(send&&callPeer&&socket)socket.emit("call:end",{to:callPeer});if(pc){pc.close();pc=null}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null}$("localVideo").srcObject=null;$("remoteVideo").srcObject=null;$("callPanel").classList.add("hidden");callPeer=null;pendingOffer=null;pendingIce=[]}
+(async function init(){
+  if(!token){openModal("authModal");authMode(false);return}
+  try{const d=await api("/api/me");me=d.user;connectSocket();boot()}catch{localStorage.removeItem("notely_token");openModal("authModal")}
+})();
+</script>
+</body>
+</html>
